@@ -1,8 +1,0 @@
-EXECUTE AddPublisher 'Picador USA', '175 5th Ave, New York NY 10010', '800-221-7945'
-EXECUTE AddPublisher 'Scribner', '597 5th St, Scribner NE 68057', '800-877-4253'
-EXECUTE AddPublisher 'Boring Publishers', '123 Dull St, Boring OR 97009', '123-456-789'
-EXECUTE AddPublisher 'Saiyan Publishers', '9001 Raditz St, Planet Vegeta', '1-855-652-2218'
-EXECUTE AddPublisher 'Pocket Books', '1230 Avenue of the Americas, Rockefeller Center, New York City NY', '212-698-7000'
-EXECUTE AddPublisher 'Buck Strickland', '6788 Propane Ave, Arlen TX', '547-963-852'
-EXECUTE AddPublisher 'Your Father Publishing', '62 Stern Rd, Moralton, Statesota', '777-777-5555'
-EXECUTE AddPublisher 'Klutz', '557 Broadway, New York City NY 10012', '555-555-5555'
