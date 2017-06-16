@@ -389,23 +389,16 @@ CREATE PROCEDURE sp_HowManyOwnedByEach
 	@BookTitle varchar(255)
 AS
 SELECT
-	b.BookId,
 	b.Title,
-	bc.BranchID,
-	bc.No_Of_Copies,
-	lb.BranchName
-INTO #temp
+	lb.BranchName,
+	SUM(bc.No_Of_Copies) AS 'Amount:'
 FROM BOOK b
 	JOIN Book_Copies bc ON (b.BookId = bc.BookID)
 	JOIN Library_Branch lb ON (bc.BranchID = lb.BranchID)
-SELECT
-	Title,
-	BranchName,
-	SUM(No_Of_Copies) AS 'Amount:'
-FROM #temp
 WHERE Title = @BookTitle
 GROUP BY Title, BranchName
 GO
+
 -- EXECUTE sp_HowManyOwnedByEach 'The Lost Tribe'
 
 -- Query 3 --
@@ -448,7 +441,7 @@ GO
 -- Query 5 --
 
 CREATE PROCEDURE sp_HowManyLoaned
-As
+AS
 SELECT
 	lb.BranchName,
 	COUNT(bl.BranchID) 'Total Books Currently on Loan:'
@@ -470,7 +463,7 @@ SELECT
 FROM Borrower bor
 	JOIN Book_Loans bl ON (bor.CardNo = bl.CardNo)
 GROUP BY Name, Address
-HAVING COUNT(bl.BranchID) >= @MinimumNumber
+HAVING COUNT(bl.BookID) >= @MinimumNumber
 GO
 
 -- EXEC sp_TooManyLoaned 5
