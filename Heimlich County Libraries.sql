@@ -348,3 +348,81 @@ EXECUTE AddCopy 20, 1, 5
 EXECUTE AddCopy 20, 2, 5
 EXECUTE AddCopy 20, 3, 5
 EXECUTE AddCopy 20, 4, 5
+
+-- Queries (as stored procedures
+
+-- Query 1
+CREATE PROCEDURE sp_HowManyAtBranch
+	@BookTitle varchar(255),
+	@BranchName varchar(255)
+AS
+SELECT
+	b.Title,
+	bc.No_Of_Copies,
+	lb.BranchName
+FROM Book b
+	INNER JOIN Book_Copies bc ON (b.BookID = bc.BookID)
+	INNER JOIN Library_Branch lb ON (bc.BranchID = lb.BranchID)
+WHERE Title = @BookTitle AND BranchName = @BranchName
+GO
+-- EXECUTE sp_HowManyAtBranch 'The Lost Tribe', 'Sharpstown'
+
+-- Query 2
+CREATE PROCEDURE sp_HowManyOwnedByEach
+	@BookTitle varchar(255)
+AS
+SELECT
+	b.BookId,
+	b.Title,
+	bc.BranchID,
+	bc.No_Of_Copies,
+	lb.BranchName
+INTO #temp
+FROM BOOK b
+	JOIN Book_Copies bc ON (b.BookId = bc.BookID)
+	JOIN Library_Branch lb ON (bc.BranchID = lb.BranchID)
+SELECT
+	Title,
+	BranchName,
+	SUM(No_Of_Copies) AS 'Amount:'
+FROM #temp
+WHERE Title = @BookTitle
+GROUP BY Title, BranchName
+GO
+-- EXECUTE sp_HowManyOwnedByEach 'The Lost Tribe'
+
+-- Query 3
+SELECT Name
+FROM Borrower b
+	LEFT JOIN Book_Loans bl ON (b.CardNo = bl.CardNo)
+WHERE bl.CardNo IS NULL
+GO
+
+--In this case, Bobby Hill is the only name returned. He's the only one with no loans. That boy ain't right.
+
+-- Query 4
+CREATE PROCEDURE sp_DueToday
+	@BranchName varchar(255)
+AS
+SELECT DISTINCT 
+	bl.DueDate, 
+	lb.BranchName 'Branch', 
+	b.Title, 
+	bor.Name 'Borrower Name', 
+	bor.[Address] 'Borrower Address'
+FROM Book_Loans bl
+	JOIN Library_Branch lb ON (bl.BranchID = lb.BranchID)
+	JOIN Book b ON (b.BookID = bl.BookID)
+	JOIN Borrower bor ON (bor.CardNo = bl.CardNo)
+WHERE DueDate = CAST(CURRENT_TIMESTAMP AS DATE)
+AND BranchName = @BranchName
+GO
+
+-- EXECUTE sp_DueToday 'Sharpstown'
+-- This will return the DueDate (today's date, in case you want to confirm), the name of the Branch, the title of the book, and the name and address of the borrower. It uses today's date, I tried to put a range of dates in the table but if it's not returning anything, try: EXECUTE AddLoan 6, 4, 104, '**Any Date**', '**Today's Date**'
+
+-- Query 5
+
+-- Query 6
+
+-- Query 7
