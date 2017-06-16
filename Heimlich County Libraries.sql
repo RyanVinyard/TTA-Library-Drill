@@ -359,10 +359,13 @@ EXECUTE AddCopy 20, 1, 5
 EXECUTE AddCopy 20, 2, 5
 EXECUTE AddCopy 20, 3, 5
 EXECUTE AddCopy 20, 4, 5
+GO
+;
 
 -- Queries (as stored procedures) --
 
 -- Query 1 --
+
 
 CREATE PROCEDURE sp_HowManyAtBranch
 	@BookTitle varchar(255),
@@ -407,13 +410,17 @@ GO
 
 -- Query 3 --
 
+CREATE PROCEDURE sp_WhoHasNoBooks
+AS
 SELECT Name
 FROM Borrower b
 	LEFT JOIN Book_Loans bl ON (b.CardNo = bl.CardNo)
 WHERE bl.CardNo IS NULL
 GO
 
---In this case, Bobby Hill is the only name returned. He's the only one with no loans. That boy ain't right.
+-- EXEC sp_WhoHasNoBooks
+
+-- In this case, Bobby Hill is the only name returned. He's the only one with no loans. That boy ain't right.
 
 -- Query 4 --
 
