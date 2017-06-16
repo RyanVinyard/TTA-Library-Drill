@@ -1,11 +1,13 @@
--- Database Creation
+-- Database Creation --
+
 CREATE DATABASE db_HeimlichCountyLibraries
 GO
 ;
 
 USE db_HeimlichCountyLibraries
  
--- Table Creation
+-- Table Creation --
+
 CREATE TABLE Publisher (
 Name varchar(255) NOT NULL PRIMARY KEY,
 Address varchar(255) NOT NULL,
@@ -58,7 +60,8 @@ No_Of_Copies int NOT NULL
 GO
  
  
--- Procedures
+-- Procedures --
+
 CREATE PROCEDURE AddPublisher
 @Name varchar(255),
 @Address varchar(255),
@@ -136,14 +139,17 @@ VALUES
 GO
 ;
  
--- Insert statments using procedures
--- Branches
+-- Insert statments using procedures --
+
+-- Branches --
+
 EXECUTE AddBranch 'Sharpstown', '455 Strickland Ct, Arlen TX 76001'
 EXECUTE AddBranch 'Central', '5251 Platter St, Arlen TX 76001'
 EXECUTE AddBranch 'Brownsville', '400 Redcorn St, Arlen TX 76001'
 EXECUTE AddBranch 'Landry', '100 Landry Ave, Arlen TX 76001'
  
--- Publishers
+-- Publishers --
+
 EXECUTE AddPublisher 'Picador USA', '175 5th Ave, New York NY 10010', '800-221-7945'
 EXECUTE AddPublisher 'Scribner', '597 5th St, Scribner NE 68057', '800-877-4253'
 EXECUTE AddPublisher 'Boring Publishers', '123 Dull St, Boring OR 97009', '123-456-789'
@@ -153,7 +159,8 @@ EXECUTE AddPublisher 'Buck Strickland', '6788 Propane Ave, Arlen TX', '547-963-8
 EXECUTE AddPublisher 'Your Father Publishing', '62 Stern Rd, Moralton, Statesota', '777-777-5555'
 EXECUTE AddPublisher 'Klutz', '557 Broadway, New York City NY 10012', '555-555-5555'
  
--- Books
+-- Books --
+
 EXECUTE AddBook 'The Lost Tribe', 'Picador USA'
 EXECUTE AddBook 'The Murder of Biggie Smalls', 'Picador USA'
 EXECUTE AddBook 'The Jungle', 'Picador USA'
@@ -177,7 +184,8 @@ EXECUTE AddBook 'The Solar Car Book', 'Klutz'
  
  
  
--- Authors
+-- Authors --
+
 EXECUTE AddAuthor '1', 'Mark Lee'
 EXECUTE AddAuthor '2', 'Cathy Scott'
 EXECUTE AddAuthor '3', 'Upton Sinclair'
@@ -200,7 +208,8 @@ EXECUTE AddAuthor '19', 'Biff Strongman'
 EXECUTE AddAuthor '20', 'Anonymous'
  
  
--- Borrowers
+-- Borrowers --
+
 EXECUTE AddBorrower '100', 'Hank Hill', '84 Rainey St, Arlen TX', '1-618-151-6114'
 EXECUTE AddBorrower '101', 'Dale Gribble', '88 Rainey St, Arlen TX', '4-514-2217'
 EXECUTE AddBorrower '102', 'Bobby Hill', '84 Rainey St, Arlen TX', '1-618-151-6114'
@@ -213,7 +222,8 @@ EXECUTE AddBorrower '108', 'John Redcorn', '44 Anasazi Ct, Arlen TX', '166-1918'
 EXECUTE AddBorrower '109', 'Nancy Gribble', '88 Rainey St, Arlen TX', '4-514-2217'
  
  
--- Loans
+-- Loans --
+
 EXECUTE AddLoan 1, 1, 100, '2017-06-01', '2017-06-15'
 EXECUTE AddLoan 2, 1, 100, '2017-06-03', '2017-06-17'
 EXECUTE AddLoan 3, 1, 100, '2017-06-04', '2017-06-18'
@@ -267,7 +277,8 @@ EXECUTE AddLoan 1, 2, 109, '2017-06-16', '2017-06-30'
  
  
  
--- Copies
+-- Copies --
+
 EXECUTE AddCopy 1, 1, 5
 EXECUTE AddCopy 1, 2, 5
 EXECUTE AddCopy 1, 3, 5
@@ -349,9 +360,10 @@ EXECUTE AddCopy 20, 2, 5
 EXECUTE AddCopy 20, 3, 5
 EXECUTE AddCopy 20, 4, 5
 
--- Queries (as stored procedures
+-- Queries (as stored procedures) --
 
--- Query 1
+-- Query 1 --
+
 CREATE PROCEDURE sp_HowManyAtBranch
 	@BookTitle varchar(255),
 	@BranchName varchar(255)
@@ -365,9 +377,11 @@ FROM Book b
 	INNER JOIN Library_Branch lb ON (bc.BranchID = lb.BranchID)
 WHERE Title = @BookTitle AND BranchName = @BranchName
 GO
+
 -- EXECUTE sp_HowManyAtBranch 'The Lost Tribe', 'Sharpstown'
 
--- Query 2
+-- Query 2 --
+
 CREATE PROCEDURE sp_HowManyOwnedByEach
 	@BookTitle varchar(255)
 AS
@@ -391,7 +405,8 @@ GROUP BY Title, BranchName
 GO
 -- EXECUTE sp_HowManyOwnedByEach 'The Lost Tribe'
 
--- Query 3
+-- Query 3 --
+
 SELECT Name
 FROM Borrower b
 	LEFT JOIN Book_Loans bl ON (b.CardNo = bl.CardNo)
@@ -400,7 +415,8 @@ GO
 
 --In this case, Bobby Hill is the only name returned. He's the only one with no loans. That boy ain't right.
 
--- Query 4
+-- Query 4 --
+
 CREATE PROCEDURE sp_DueToday
 	@BranchName varchar(255)
 AS
@@ -419,10 +435,54 @@ AND BranchName = @BranchName
 GO
 
 -- EXECUTE sp_DueToday 'Sharpstown'
+
 -- This will return the DueDate (today's date, in case you want to confirm), the name of the Branch, the title of the book, and the name and address of the borrower. It uses today's date, I tried to put a range of dates in the table but if it's not returning anything, try: EXECUTE AddLoan 6, 4, 104, '**Any Date**', '**Today's Date**'
 
--- Query 5
+-- Query 5 --
+
+CREATE PROCEDURE sp_HowManyLoaned
+As
+SELECT
+	lb.BranchName,
+	COUNT(bl.BranchID) 'Total Books Currently on Loan:'
+FROM Library_Branch lb
+	JOIN Book_Loans bl ON (lb.BranchID = bl.BranchID)
+GROUP BY BranchName
+GO
+
+-- EXEC sp_HowManyLoaned
 
 -- Query 6
+CREATE PROCEDURE sp_TooManyLoaned
+	@MinimumNumber int
+AS
+SELECT
+	bor.Name,
+	bor.Address,
+	COUNT(bl.BranchID) 'Books Checked Out:'
+FROM Borrower bor
+	JOIN Book_Loans bl ON (bor.CardNo = bl.CardNo)
+GROUP BY Name, Address
+HAVING COUNT(bl.BranchID) >= @MinimumNumber
+GO
 
--- Query 7
+-- EXEC sp_TooManyLoaned 5
+
+-- Query 7 --
+
+CREATE PROCEDURE sp_HowManyByAuthor
+	@AuthorName varchar(255),
+	@BranchName varchar(255)
+AS
+SELECT
+	b.Title,
+	bc.No_Of_Copies,
+	lb.BranchName
+FROM Book b
+	JOIN Book_Copies bc ON (b.BookID = bc.BookID)
+	JOIN Book_Authors ba ON (b.BookID = ba.BookID)
+	JOIN Library_Branch lb ON (bc.BranchID = lb.BranchID)
+WHERE ba.AuthorName = @AuthorName AND lb.BranchName = @BranchName
+GO
+
+-- EXEC sp_HowManyByAuthor 'Stephen King', 'Central'
